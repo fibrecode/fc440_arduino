@@ -3,8 +3,6 @@
 
 #include <Arduino.h>
 
-#include "smi.h"
-#include "leds.h"
 #include "PhyInterface.h"
 
 
@@ -152,7 +150,7 @@ union SPECIAL_CONTROL_REGISTER
 };
 
 
-class Internal_Phy
+class Lan9303InternalPhy
 {
     public:
         void begin(PhyInterface * phyInterface, uint8_t phyId, bool debugEnable = false);
@@ -160,28 +158,7 @@ class Internal_Phy
         void process();
         void dump_regs();
         void dump_properties();
-
-        void restart_link(uint8_t phyRole);
-        void set_phy_role_auto(bool enable);
-        void set_phy_role_req(uint8_t phyRole);
-
         uint32_t get_phy_id();
-        bool enable_config(bool enable);
-        uint8_t get_clock_mode();
-        uint8_t set_clock_mode(uint8_t clockMode);
-        uint8_t get_mii_mode();
-        uint8_t set_mii_mode(uint8_t miiMode);
-        uint8_t set_phy_role(uint8_t phyRole);
-        uint8_t get_phy_role();
-        uint8_t set_power_mode(uint8_t powwerMode);
-        uint8_t get_power_mode();
-        uint8_t set_phy_mode(uint8_t phyMode);  // Auto, Host-Controlled, ....
-        uint8_t get_phy_mode();
-        bool get_link_control();
-        bool set_link_control(bool enable);
-        bool get_link_status();
-        uint8_t get_sqi_value();
-        bool check_polarity(); // true: no crossed-polarity detected; false: polarity crossed
 
         // private reg-access, leave public for easier test-code
         uint16_t read_reg(uint8_t registerAddress);
@@ -197,9 +174,7 @@ class Internal_Phy
         void printAutoNegExpansion(uint16_t raw);
         void printSpecialMode(uint16_t raw);
         void printSpecialControl(uint16_t raw);
-        SmiBitbang * _smi;
         PhyInterface * _pPhyInterface;
-        BoardLed * _led;
         bool _debugEnable;
         uint8_t _phyId;
         uint8_t _phyRoleAuto;

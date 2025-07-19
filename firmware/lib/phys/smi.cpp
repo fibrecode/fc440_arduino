@@ -17,7 +17,16 @@ void SmiBitbang::begin(int pin_mdc, int pin_mdio)
     pinMode(this->_pin_mdio, INPUT);
 }
 
+uint16_t SmiBitbang::readCL22(uint8_t portAddress, uint8_t registerAddress)
+{
+    //Read and return the data
+    return this->read(portAddress, registerAddress, 0);
+}
 
+void SmiBitbang::writeCL22(uint8_t portAddress, uint8_t registerAddress, uint16_t registerValue)
+{
+    this->write(portAddress, registerValue, 0, 0, 0);
+}
 uint16_t SmiBitbang::readCL45(uint8_t portAddress, uint8_t deviceAddress, uint16_t registerAddress)
 {
     //Send Address Message

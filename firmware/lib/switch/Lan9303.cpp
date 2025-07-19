@@ -2,9 +2,10 @@
 
 #include "Lan9303.h"
 #include "fc1020.h"
+#include "string"
 
 
-#include "lan9303_driver.h"
+#include "lan9303_registers.h"
 
 
 Lan9303::Lan9303(uint8_t i2cAddr, bool debugEnable) 
@@ -52,7 +53,7 @@ void Lan9303::port2Config()
 struct DebugRegister
 {
     uint32_t addr;
-    char* text;
+    std::string text;
 };
 
 DebugRegister registersMap[] =
@@ -248,7 +249,7 @@ int Lan9303::read(uint32_t address, uint32_t * data)
 
   _pI2c->beginTransmission(_i2cAddress);
   _pI2c->write(addr);
-  _pI2c->endTransmission();  
+  _pI2c->endTransmission();
 
   bytesRead = _pI2c->requestFrom(_i2cAddress, 4, true);
 
@@ -266,6 +267,8 @@ int Lan9303::read(uint32_t address, uint32_t * data)
   temp[1] = _pI2c->read();
   temp[2] = _pI2c->read();
   temp[3] = _pI2c->read();
+
+  Serial.printf("wait for raw data ...0x%X, 0x%X, 0x%X, 0x%X\n\r",temp[0],temp[1],temp[2],temp[3]);
 
   *data = (temp[0] << 24) | (temp[1] << 16) | (temp[2] << 8) | temp[3];
   return 0;

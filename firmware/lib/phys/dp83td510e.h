@@ -108,12 +108,20 @@ class DP83TD510E_Control
         void writeExtendedReg(uint16_t registerAddress, uint16_t data);
         void dump_regs();
         void dump_properties();
+        // Phy-API
+        void set_phy_role_force_master(bool enable);
+        bool get_phy_role_force_master();
+        void set_phy_role_master_off(bool enable);
+        bool get_phy_role_master_off();
     
     private:
         SmiBitbang * _smi;
         BoardLed * _led;
         bool _debugEnable;
         uint8_t _phyId;
+
+        bool phyForceMaster;
+        bool phyAdvertiseSlave;
 
         void decodeRegisterAddress(uint16_t address, uint8_t * mmd, uint16_t * actualAddress);
 };

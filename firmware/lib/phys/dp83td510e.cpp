@@ -1,5 +1,4 @@
 
-
 #include "dp83td510e.h"
 
 
@@ -44,6 +43,56 @@ void DP83TD510E_Control::default_setup()
 void DP83TD510E_Control::process()
 {
     uint16_t temp = 0;
+    uint16_t regANAdv1;
+    uint16_t regPMAPMD;
+
+    if (this->phyForceMaster)
+    {
+        // set bit AN_ADV_1 Register
+        regANAdv1 = this->readExtendedReg(DP83TD510E_REG_AN_ADV_1);
+        regANAdv1 |= (1<<12);
+        this->writeExtendedReg(DP83TD510E_REG_AN_ADV_1, regANAdv1);
+
+        regPMAPMD = this->readExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL);
+        regPMAPMD |= (1<<14);
+        this->writeExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL, regPMAPMD);
+    }
+
+    if (this->phyForceMaster)
+    {
+        // set bit AN_ADV_1 Register
+        regANAdv1 = this->readExtendedReg(DP83TD510E_REG_AN_ADV_1);
+        regANAdv1 |= (1<<12);
+        this->writeExtendedReg(DP83TD510E_REG_AN_ADV_1, regANAdv1);
+        // set bit AN_ADV_FORCE_MS in AN_ADV_ABILITY_L
+        regPMAPMD = this->readExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL);
+        regPMAPMD |= (1<<14);
+        this->writeExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL, regPMAPMD);
+    }
+    else
+    {
+        // clear bit AN_ADV_1 Register
+        regANAdv1 = this->readExtendedReg(DP83TD510E_REG_AN_ADV_1);
+        regANAdv1 &= ~(1<<12);
+        this->writeExtendedReg(DP83TD510E_REG_AN_ADV_1, regANAdv1);
+
+        regPMAPMD = this->readExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL);
+        regPMAPMD &= ~(1<<14);
+        this->writeExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL, regPMAPMD);
+    }
+
+    if (this->phyAdvertiseSlave)
+    {
+        // clear bit AN_ADV_1 Register
+        regANAdv1 = this->readExtendedReg(DP83TD510E_REG_AN_ADV_1);
+        regANAdv1 &= ~(1<<12);
+        this->writeExtendedReg(DP83TD510E_REG_AN_ADV_1, regANAdv1);
+
+        regPMAPMD = this->readExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL);
+        regPMAPMD &= ~(1<<14);
+        this->writeExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL, regPMAPMD);
+    }
+
     temp = this->readExtendedReg(DP83TD510E_REG_AN_STATUS);
     if(temp & 0x0004)
     {  //Link is UP!
@@ -162,4 +211,28 @@ void DP83TD510E_Control::dump_properties()
 {
 
 }
+
+void DP83TD510E_Control::set_phy_role_force_master(bool enable)
+{
+    this->phyForceMaster = enable;
+}
+
+
+bool DP83TD510E_Control::get_phy_role_force_master()
+{
+    return this->phyForceMaster;
+}
+
+void DP83TD510E_Control::set_phy_role_master_off(bool enable)
+{
+    this->phyAdvertiseSlave = enable;
+}
+
+bool DP83TD510E_Control::get_phy_role_master_off()
+{
+    return this->phyAdvertiseSlave;
+}
+
+
+
 

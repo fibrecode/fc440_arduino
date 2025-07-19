@@ -64,9 +64,6 @@ void ADIN1100_Control::process()
     uint16_t regANAdvAbilityM;
     uint16_t regANAdvAbilityL;
 
-    //phyId1 = this->_smi->readCL45(this->_phyId, 0x1E, 2);    
-    //phyId2 = this->_smi->readCL45(this->_phyId, 0x1E, 3);
-
     if (this->phyForceMaster)
     {
         // set bit AN_ADV_ABILITY_M in AN_ADV_ABILITY_M

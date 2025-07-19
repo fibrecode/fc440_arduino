@@ -10,6 +10,9 @@ class SmiBitbang
         SmiBitbang();
         void begin(int pin_mdc = -1, int pin_mdio = -1);
 
+        uint16_t readCL22(uint8_t portAddress, uint8_t registerAddress);
+        void writeCL22(uint8_t portAddress, uint8_t registerAddress, uint16_t registerData);
+
         uint16_t readCL45(uint8_t portAddress, uint8_t deviceAddress, uint16_t registerAddress);
         void writeCL45(uint8_t portAddress, uint8_t deviceAddress, uint16_t registerAddress, uint16_t registerData);
 
