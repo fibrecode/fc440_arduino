@@ -16,11 +16,21 @@ void DP83TD510E_Control::default_setup()
 
     this->_led->setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_BLINK_FAST);
 
-    temp = 0x4000;
+    //soft reset nach evm manual page.12
+    //bit 12 ist im Datenblatt als Reserved gekennzeichnet?!
+    //this->writeExtendedReg(DP83TD510E_REG_PHY_STS, 0x4000);
+    //sleep_ms(50);
+
+    temp = 0x4001;
     if(this->_debugEnable)
         Serial.printf("DP83TD510E Setup MAC_CFG_1: %04X\r\n", temp);
     //this->_smi->write(_phyId, DP83TD510E_REG_MAC_CFG_1, temp);
     this->writeExtendedReg(DP83TD510E_REG_MAC_CFG_1, temp);
+
+    // MAC-CFG-2
+    
+    this->writeExtendedReg(DP83TD510E_REG_MAC_CFG_2, 0x0003);
+
 
     //Enable PMA 2.4V
     this->readExtendedReg(DP83TD510E_REG_PMA_CTRL);
@@ -32,10 +42,7 @@ void DP83TD510E_Control::default_setup()
     this->writeExtendedReg(DP83TD510E_REG_AN_CTRL_10BT1, 0xB000);
     this->readExtendedReg(DP83TD510E_REG_AN_CTRL_10BT1);
     
-    //soft reset nach evm manual page.12
-    //bit 12 ist im Datenblatt als Reserved gekennzeichnet?!
-    this->writeExtendedReg(0x0010, 0x4000);
-    sleep_ms(50);
+    
 
     this->_led->setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_OFF);
 }

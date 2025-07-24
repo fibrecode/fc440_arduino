@@ -24,7 +24,7 @@
 // TI for DP83TD510E
 // undef TI for ADI ADIN1100
 
-#define X_TI
+#define _TI
 //Forward declarations
 void dipswitch_setup();
 void led_setup();
@@ -47,7 +47,8 @@ Lan9303 lanSwitch(SWITCH_ADDRESS, true);
 
 uint8_t lastDip[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 
-void setup() {
+void setup()
+{
   //sleep_ms(2200);
   
   uint32_t temp = 0;
@@ -66,7 +67,7 @@ void setup() {
 
   lanSwitch.init(&Wire);
 
-  #ifdef TI
+  #ifdef _TI
     dp83td.begin(&smi, PHY_ADDRESS_10M_TI, &LED1, true);
   #else
     adin1100.begin(&smi, PHY_ADDRESS_10M_ADI, &LED1, true);
@@ -108,7 +109,7 @@ void setup() {
 
 
   Serial.println("Go.");
-  #ifdef TI
+  #ifdef _TI
     dp83td.default_setup();
   #else
     adin1100.default_setup();
@@ -150,7 +151,7 @@ void loop() {
               tja1101.set_phy_role_req(PHY_ROLE_SLAVE);
             break;
           case 2: // Force Master
-            #ifdef TI
+            #ifdef _TI
               dp83td.set_phy_role_force_master(dip==0);
             #else
               adin1100.set_phy_role_force_master(dip==0);
@@ -158,7 +159,7 @@ void loop() {
             
             break;
           case 3: // Advertise Master=0; get slave on local
-            #ifdef TI
+            #ifdef _TI
               dp83td.set_phy_role_master_off(dip==0);
             #else
               adin1100.set_phy_role_master_off(dip==0);
@@ -174,7 +175,7 @@ void loop() {
     }
 
     Serial.printf("phy process loop\n\r");
-    #ifdef TI
+    #ifdef _TI
       dp83td.process();
     #else
       adin1100.process();
@@ -194,13 +195,13 @@ void loop() {
 
   if(debugTimer > 2000)
   {
-    for(phyAddr = 0; phyAddr<9; phyAddr++)
-    {
-      phytemp[1] = smi.read(phyAddr, 1, 0);
-      phytemp[2] = smi.read(phyAddr, 2, 0);
-      phytemp[3] = smi.read(phyAddr, 3, 0);
-      Serial.printf("PhyAd: %i - %04X.%04X.%04X\r\n", phyAddr, phytemp[1], phytemp[2], phytemp[3]);
-    }
+    // for(phyAddr = 0; phyAddr<9; phyAddr++)
+    // {
+    //   phytemp[1] = smi.read(phyAddr, 1, 0);
+    //   phytemp[2] = smi.read(phyAddr, 2, 0);
+    //   phytemp[3] = smi.read(phyAddr, 3, 0);
+    //   Serial.printf("PhyAd: %i - %04X.%04X.%04X\r\n", phyAddr, phytemp[1], phytemp[2], phytemp[3]);
+    // }
     
       debugTimer = 0;
   }
