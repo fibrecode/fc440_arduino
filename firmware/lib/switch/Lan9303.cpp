@@ -92,21 +92,23 @@ const uint16_t registersMapSize = sizeof(registersMap) / sizeof(registersMap[0])
 void Lan9303::cyclic()
 {
   //print debug registers
-  Serial.printf("SWitch printing %i registers\r\n", registersMapSize);
+  Serial.printf("Switch printing %i registers\r\n", registersMapSize);
   for (uint8_t i = 0; i< registersMapSize; i++)
-    {
+  {
       uint32_t data=0xAFFE;
       uint32_t regAddr = registersMap[i].addr;
       read_switch_reg(regAddr, &data);
       Serial.printf("Reg %s: 0x%x\r\n", registersMap[i].text, data);
-    }
+  }
+
+  Serial.printf("Switch -- END\r\n");
 
     //read 
     uint32_t macAddr=0xAFFE;
     read(LAN9303_SWITCH_MAC_ADDRH, &macAddr);
-    Serial.printf("MAC H: 0x%x\r\n", macAddr);
+    //Serial.printf("MAC H: 0x%x\r\n", macAddr);
     read(LAN9303_SWITCH_MAC_ADDRL, &macAddr);
-    Serial.printf("MAC L: 0x%x\r\n", macAddr);
+    //Serial.printf("MAC L: 0x%x\r\n", macAddr);
 
 }
 
@@ -255,7 +257,7 @@ int Lan9303::read(uint32_t address, uint32_t * data)
 
   while(!_pI2c->available()){
     failCnt++;
-    Serial.println("wait for data ...");
+    //Serial.println("wait for data ...");
     sleep_ms(100);
     if(failCnt > 5)
     {
@@ -268,7 +270,7 @@ int Lan9303::read(uint32_t address, uint32_t * data)
   temp[2] = _pI2c->read();
   temp[3] = _pI2c->read();
 
-  Serial.printf("wait for raw data ...0x%X, 0x%X, 0x%X, 0x%X\n\r",temp[0],temp[1],temp[2],temp[3]);
+  //Serial.printf("wait for raw data ...0x%X, 0x%X, 0x%X, 0x%X\n\r",temp[0],temp[1],temp[2],temp[3]);
 
   *data = (temp[0] << 24) | (temp[1] << 16) | (temp[2] << 8) | temp[3];
   return 0;

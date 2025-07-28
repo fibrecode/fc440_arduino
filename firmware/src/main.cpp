@@ -89,6 +89,7 @@ void setup()
   
   //sleep_ms(2200);  // -------------------------------------------------Extend here to debug startup using serial port.
 
+  /*
   #define EEPROM_DATA 0x1B8
   Serial.println("Wait for the Switch / timeout the EEPROM");
   sleep_ms(100);
@@ -106,9 +107,9 @@ void setup()
   uint16_t regAdd;
   lanSwitch.read(0x1F8, &temp32);
   Serial.printf("PHY reading Reset CTL: 0x%X \n\r",temp32);
-
-
-  Serial.println("Go.");
+*/
+  Serial.println("configure Phy/Switch defaults");
+  
   #ifdef _TI
     dp83td.default_setup();
   #else
@@ -116,9 +117,12 @@ void setup()
   #endif
 
   tja1101.default_setup();
+  
   internalPhy.default_setup();
 
   lanSwitch.start();
+
+  Serial.println("Go.");
 }
 
 void loop() {

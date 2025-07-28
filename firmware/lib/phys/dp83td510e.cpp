@@ -16,16 +16,11 @@ void DP83TD510E_Control::default_setup()
 
     this->_led->setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_BLINK_FAST);
 
-    //soft reset nach evm manual page.12
-    //bit 12 ist im Datenblatt als Reserved gekennzeichnet?!
-    //this->writeExtendedReg(DP83TD510E_REG_PHY_STS, 0x4000);
-    //sleep_ms(50);
-
     temp = 0x4001;
     if(this->_debugEnable)
         Serial.printf("DP83TD510E Setup MAC_CFG_1: %04X\r\n", temp);
-    //this->_smi->write(_phyId, DP83TD510E_REG_MAC_CFG_1, temp);
-    this->writeExtendedReg(DP83TD510E_REG_MAC_CFG_1, temp);
+    this->_smi->writeCL22(this->_phyId, DP83TD510E_REG_MAC_CFG_1, temp);
+    //this->writeExtendedReg(DP83TD510E_REG_MAC_CFG_1, temp);
 
     // MAC-CFG-2
     
@@ -41,8 +36,10 @@ void DP83TD510E_Control::default_setup()
     this->readExtendedReg(DP83TD510E_REG_AN_CTRL_10BT1);
     this->writeExtendedReg(DP83TD510E_REG_AN_CTRL_10BT1, 0xB000);
     this->readExtendedReg(DP83TD510E_REG_AN_CTRL_10BT1);
-    
-    
+
+    //soft reset via bit15 in reg00
+    this->writeExtendedReg(DP83TD510E_REG_MII_REG_0, 0x8000);
+    sleep_ms(50);
 
     this->_led->setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_OFF);
 }
@@ -52,18 +49,6 @@ void DP83TD510E_Control::process()
     uint16_t temp = 0;
     uint16_t regANAdv1;
     uint16_t regPMAPMD;
-
-    if (this->phyForceMaster)
-    {
-        // set bit AN_ADV_1 Register
-        regANAdv1 = this->readExtendedReg(DP83TD510E_REG_AN_ADV_1);
-        regANAdv1 |= (1<<12);
-        this->writeExtendedReg(DP83TD510E_REG_AN_ADV_1, regANAdv1);
-
-        regPMAPMD = this->readExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL);
-        regPMAPMD |= (1<<14);
-        this->writeExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL, regPMAPMD);
-    }
 
     if (this->phyForceMaster)
     {
@@ -136,9 +121,11 @@ uint16_t DP83TD510E_Control::readExtendedReg(uint16_t registerAddress)
     uint16_t temp = 0;
     this->decodeRegisterAddress(registerAddress, &mmd, &addr);
 
-    if(registerAddress <= 0x1F){
-        temp = this->_smi->read(this->_phyId, registerAddress);
-    }else{
+    if(registerAddress <= 0x1F)
+    {
+        temp = this->_smi->readCL22(this->_phyId, registerAddress);
+    }else
+    {
         this->_smi->write(this->_phyId, 0x000D, mmd);
         this->_smi->write(this->_phyId, 0x000E, addr);
         this->_smi->write(this->_phyId, 0x000D, 0x4000 | mmd);
@@ -156,12 +143,24 @@ void DP83TD510E_Control::writeExtendedReg(uint16_t registerAddress, uint16_t dat
 {
     uint8_t mmd = 0;
     uint16_t addr = 0;
-    this->decodeRegisterAddress(registerAddress, &mmd, &addr);    
+    uint16_t temp = 0;
 
-    this->_smi->write(this->_phyId, 0x000D, mmd);
-    this->_smi->write(this->_phyId, 0x000E, addr);
-    this->_smi->write(this->_phyId, 0x000D, 0x4000 | mmd);
-    this->_smi->write(this->_phyId, 0x000E, data);
+    if(registerAddress <= 0x1F)
+    {
+        this->_smi->write(this->_phyId, registerAddress, data);
+
+        if(this->_debugEnable)
+            Serial.printf("DP83TD510E-writeReg ID:%02X REG:%04X - DATA:%04X\r\n", this->_phyId, registerAddress, data);
+    }
+    else
+    {
+        this->decodeRegisterAddress(registerAddress, &mmd, &addr);    
+
+        this->_smi->write(this->_phyId, 0x000D, mmd);
+        this->_smi->write(this->_phyId, 0x000E, addr);
+        this->_smi->write(this->_phyId, 0x000D, 0x4000 | mmd);
+        this->_smi->write(this->_phyId, 0x000E, data);
+    }
 
     if(this->_debugEnable)
         Serial.printf("DP83TD510E-writeExtendedReg ID:%02X REG:%04X - MMD:%02X ADDR:%04X DATA:%04X\r\n", this->_phyId, registerAddress, mmd, addr, data);
@@ -188,30 +187,26 @@ void DP83TD510E_Control::decodeRegisterAddress(uint16_t address, uint8_t * mmd, 
 void DP83TD510E_Control::dump_regs()
 {
     uint8_t j;
-    uint16_t regs[18];
+    uint16_t regs[32];
     uint32_t t1, t2;
 
     
     t1 = time_us_32();
 
-    for (j = 0; j < 18; j++)
+    for (j = 0; j < 32; j++)
     {
-        if (j < 4)
-            regs[j] = this->readExtendedReg(j);        // 0-3
-        else
-            regs[j] = this->readExtendedReg(j+11);     // 15-28
+        regs[j] = this->readExtendedReg(j);
     }
     
     t2 = time_us_32();
 
     Serial.printf("DP83TD510E: Time:%d (%d) us\r\n", t2, t2-t1);
-    for (j = 0; j < 18; j++)
+    for (j = 0; j < 32; j++)
     {
-        if (j < 4)
-            Serial.printf("[%02d]=0x%04X\r\n", j, regs[j]);
-        else
-            Serial.printf("[%02d]=0x%04X\r\n", j+11, regs[j]);
+        Serial.printf("[%02d]=0x%04X\r\n", j, regs[j]);
     }
+
+    Serial.printf("DP83TD510E --- END DumpRegs\r\n");
 }
 
 void DP83TD510E_Control::dump_properties()
