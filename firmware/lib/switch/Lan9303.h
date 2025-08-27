@@ -43,14 +43,14 @@ class Lan9303 :  public PhyInterface
         virtual void write_phy_reg(uint8_t phyAddr, uint8_t registerAddress, uint16_t data);
 
         //access to switch CSR register
-        uint16_t read_switch_reg(uint16_t registerAddress, uint32_t* data);
+        void read_switch_reg(uint16_t registerAddress, uint32_t* data);
         void write_switch_reg(uint16_t registerAddress, uint32_t data);
 
         int write(uint32_t address, uint32_t data);
         int read(uint32_t address, uint32_t * data);
 
         void port2Config();
-        void cyclic();
+        void process();
 
         HW_CFG getHWConfig();
 

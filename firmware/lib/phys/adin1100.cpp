@@ -116,11 +116,11 @@ void ADIN1100_Control::process()
 
     if ((pmaLinkStat & 1) == 1)
     {
-        this->_led->setLed(BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_ON);
+        this->_led->setLed(BOARD_LED_COLOR_GREEN, BOARD_LED_MODE_ON);
     }
     else
     {    
-        this->_led->setLed(BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_FLASHING);
+        this->_led->setLed2(BOARD_LED_COLOR_ORANGE, BOARD_LED_COLOR_RED, BOARD_LED_MODE_FLASHING_BI);
     }
 
     if(this->_debugEnable){

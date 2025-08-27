@@ -1,3 +1,18 @@
+/*
+FibreCode FC440 3-Port Switch LAN9303Mi
+
+  100BASE-TX
+  100BASE-T1
+  10BASE-T1L
+
+  Firmware-Version: V0.9.0
+
+  History:
+  2025-08-27: First Beta ready
+
+*/
+
+
 #include <Arduino.h>
 #include <Wire.h>
 
@@ -24,7 +39,7 @@
 // TI for DP83TD510E
 // undef TI for ADI ADIN1100
 
-#define _TI
+#define X_TI
 //Forward declarations
 void dipswitch_setup();
 void led_setup();
@@ -32,7 +47,6 @@ void led_setup();
 void i2c_scan();
 void print_bits32(uint32_t value);
 void print_bits32_ex(uint32_t value);
-
 
 SmiBitbang smi;
 DP83TD510E_Control dp83td;
@@ -49,15 +63,14 @@ uint8_t lastDip[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 
 void setup()
 {
-  //sleep_ms(2200);
-  
   uint32_t temp = 0;
+
   pinMode(PIN_SMI_MDC, INPUT);
   pinMode(PIN_SMI_MDIO, INPUT);
+
   led_setup();
   dipswitch_setup();
 
- 
   smi.begin(PIN_SMI_MDC, PIN_SMI_MDIO);
 
   Wire.setSDA(PIN_I2C_SDA);
@@ -82,32 +95,14 @@ void setup()
   Serial.print("Booting ");
   Serial.println(APPLICATION_NAME);
 
-  LED1.setLed(BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_BLINK_SLOW);
-  LED2.setLed(BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_FLASHING);
+  LED1.setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_BLINK_SLOW);
+  LED2.setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_FLASHING);
 
   Serial.println("ready.");
   
-  //sleep_ms(2200);  // -------------------------------------------------Extend here to debug startup using serial port.
+  //sleep_ms(1000);  // -------------------------------------------------Extend here to debug startup using serial port.
 
-  /*
-  #define EEPROM_DATA 0x1B8
-  Serial.println("Wait for the Switch / timeout the EEPROM");
-  sleep_ms(100);
-  lanSwitch.read(0x1EC, &temp);
-  Serial.print("Port1 CONFIG: ");
-  print_bits32(temp);
-  Serial.println("");
-
-
-  //sleep_ms(5000);
-  uint32_t temp32;
-   lanSwitch.read(0x50, &temp32);
-   Serial.printf("reading switch id: 0x%X \n\r",temp32);
-
-  uint16_t regAdd;
-  lanSwitch.read(0x1F8, &temp32);
-  Serial.printf("PHY reading Reset CTL: 0x%X \n\r",temp32);
-*/
+  
   Serial.println("configure Phy/Switch defaults");
   
   #ifdef _TI
@@ -125,7 +120,9 @@ void setup()
   Serial.println("Go.");
 }
 
-void loop() {
+
+void loop()
+{
   uint32_t temp = 0;
   uint16_t phytemp[8] = {0};
   uint8_t j, dip;
@@ -178,7 +175,7 @@ void loop() {
 
     }
 
-    Serial.printf("phy process loop\n\r");
+    //Serial.printf("phy process loop\n\r");
     #ifdef _TI
       dp83td.process();
     #else
@@ -189,25 +186,9 @@ void loop() {
 
     internalPhy.process();
 
-    lanSwitch.cyclic();
-
-    HW_CFG status = lanSwitch.getHWConfig();
-    Serial.printf("lan9303 device Ready: 0x%x\r\n", status.DEVICE_READY);
+    lanSwitch.process();
 
     phyPollTimer = 0;
-  }
-
-  if(debugTimer > 2000)
-  {
-    // for(phyAddr = 0; phyAddr<9; phyAddr++)
-    // {
-    //   phytemp[1] = smi.read(phyAddr, 1, 0);
-    //   phytemp[2] = smi.read(phyAddr, 2, 0);
-    //   phytemp[3] = smi.read(phyAddr, 3, 0);
-    //   Serial.printf("PhyAd: %i - %04X.%04X.%04X\r\n", phyAddr, phytemp[1], phytemp[2], phytemp[3]);
-    // }
-    
-      debugTimer = 0;
   }
 
   LED1.process();

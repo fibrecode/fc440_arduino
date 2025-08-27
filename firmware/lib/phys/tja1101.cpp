@@ -84,11 +84,11 @@ void TJA1101_Control::process()
 
     if(this->get_link_status())
     {
-        this->_led->setLed(BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_ON);
+        this->_led->setLed(BOARD_LED_COLOR_GREEN, BOARD_LED_MODE_ON);
     }
     else
     {    
-        this->_led->setLed(BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_FLASHING);
+        this->_led->setLed2(BOARD_LED_COLOR_RED, BOARD_LED_COLOR_ORANGE, BOARD_LED_MODE_FLASHING_BI);
     }
 
 

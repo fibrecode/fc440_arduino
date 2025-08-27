@@ -53,7 +53,7 @@ void Lan9303::port2Config()
 struct DebugRegister
 {
     uint32_t addr;
-    std::string text;
+    char text[80];
 };
 
 DebugRegister registersMap[] =
@@ -77,8 +77,6 @@ DebugRegister registersMap[] =
     {LAN9303_MAC_TX_TOTALCOL_CNT_1,"LAN9303_MAC_TX_TOTALCOL_CNT_1"},
     {LAN9303_MAC_TX_TOTALCOL_CNT_2,"LAN9303_MAC_TX_TOTALCOL_CNT_2"},
     
-    
-    
     {LAN9303_MAC_RX_PKTOK_CNT_0,"LAN9303_MAC_RX_PKTOK_CNT_0"},
     {LAN9303_MAC_RX_PKTOK_CNT_1,"LAN9303_MAC_RX_PKTOK_CNT_1"},
     {LAN9303_MAC_RX_PKTOK_CNT_2,"LAN9303_MAC_RX_PKTOK_CNT_2"},
@@ -89,8 +87,19 @@ DebugRegister registersMap[] =
 
 const uint16_t registersMapSize = sizeof(registersMap) / sizeof(registersMap[0]);
 
-void Lan9303::cyclic()
+// cyclic routine to monitor switch-state/counters
+void Lan9303::process()
 {
+  HW_CFG status;
+  
+  status = getHWConfig();
+
+  if (!status.DEVICE_READY)
+  {
+    Serial.printf("lan9303 device NOT Ready: 0x%x\r\n", status.DEVICE_READY);
+    return;
+  }
+
   //print debug registers
   Serial.printf("Switch printing %i registers\r\n", registersMapSize);
   for (uint8_t i = 0; i< registersMapSize; i++)
@@ -109,7 +118,6 @@ void Lan9303::cyclic()
     //Serial.printf("MAC H: 0x%x\r\n", macAddr);
     read(LAN9303_SWITCH_MAC_ADDRL, &macAddr);
     //Serial.printf("MAC L: 0x%x\r\n", macAddr);
-
 }
 
 HW_CFG Lan9303::getHWConfig()
@@ -162,7 +170,7 @@ void Lan9303::write_phy_reg(uint8_t phyAddr,uint8_t registerAddress, uint16_t da
 
 
 
-uint16_t Lan9303::read_switch_reg(uint16_t address, uint32_t* data)
+void Lan9303::read_switch_reg(uint16_t address, uint32_t* pdata)
 {
   uint32_t value;
   
@@ -179,17 +187,17 @@ uint16_t Lan9303::read_switch_reg(uint16_t address, uint32_t* data)
   write(LAN9303_SWITCH_CSR_CMD, value);
 
   //Valid data is available for reading when the CSR_BUSY bit is cleared
+  value = 0;
   do
   {
      //Read SWITCH_CSR_CMD register
-     read(LAN9303_SWITCH_CSR_CMD,&value);
+     read(LAN9303_SWITCH_CSR_CMD, &value);
 
      //Poll CSR_BUSY bit
   } while((value & LAN9303_SWITCH_CSR_CMD_BUSY) != 0);
 
   //Read data from the SWITCH_CSR_DATA register
-  read(LAN9303_SWITCH_CSR_DATA, data);
-  return 0;
+  read(LAN9303_SWITCH_CSR_DATA, pdata);
 }
 
 void Lan9303::write_switch_reg(uint16_t registerAddress, uint32_t data)
@@ -213,6 +221,7 @@ void Lan9303::write_switch_reg(uint16_t registerAddress, uint32_t data)
 
   //The completion of the write cycle is indicated by the clearing of the
   //CSR_BUSY bit
+  value = 0;
   do
   {
      //Read SWITCH_CSR_CMD register

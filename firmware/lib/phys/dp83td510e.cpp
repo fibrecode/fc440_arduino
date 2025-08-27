@@ -16,11 +16,9 @@ void DP83TD510E_Control::default_setup()
 
     this->_led->setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_BLINK_FAST);
 
-    temp = 0x4001;
-    if(this->_debugEnable)
-        Serial.printf("DP83TD510E Setup MAC_CFG_1: %04X\r\n", temp);
-    this->_smi->writeCL22(this->_phyId, DP83TD510E_REG_MAC_CFG_1, temp);
-    //this->writeExtendedReg(DP83TD510E_REG_MAC_CFG_1, temp);
+    
+    //this->_smi->writeCL22(this->_phyId, DP83TD510E_REG_MAC_CFG_1, 0x0000);
+    this->writeExtendedReg(DP83TD510E_REG_MAC_CFG_1, 0x0000);
 
     // MAC-CFG-2
     
@@ -38,7 +36,10 @@ void DP83TD510E_Control::default_setup()
     this->readExtendedReg(DP83TD510E_REG_AN_CTRL_10BT1);
 
     //soft reset via bit15 in reg00
-    this->writeExtendedReg(DP83TD510E_REG_MII_REG_0, 0x8000);
+    //this->writeExtendedReg(DP83TD510E_REG_MII_REG_0, 0x8000);
+
+    // Internet Copilot says this
+    this->writeExtendedReg(DP83TD510E_REG_PMA_PMD_CTRL, 0x4000);
     sleep_ms(50);
 
     this->_led->setLed(BOARD_LED_COLOR_RED, BOARD_LED_MODE_OFF);
@@ -203,7 +204,7 @@ void DP83TD510E_Control::dump_regs()
     Serial.printf("DP83TD510E: Time:%d (%d) us\r\n", t2, t2-t1);
     for (j = 0; j < 32; j++)
     {
-        Serial.printf("[%02d]=0x%04X\r\n", j, regs[j]);
+        Serial.printf("[%02X]=0x%04X\r\n", j, regs[j]);
     }
 
     Serial.printf("DP83TD510E --- END DumpRegs\r\n");
