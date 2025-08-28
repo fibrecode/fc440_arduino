@@ -59,7 +59,6 @@ void ADIN1100_Control::default_setup()
 
 void ADIN1100_Control::process()
 {
-    uint16_t phyId1, phyId2;
     uint16_t pmaLinkStat, pmaStat;
     uint16_t regANAdvAbilityM;
     uint16_t regANAdvAbilityL;
@@ -126,7 +125,7 @@ void ADIN1100_Control::process()
     if(this->_debugEnable){
         Serial.print("---------------------------------------------------------------\r\n");
         Serial.println("ADI process()");
-        Serial.printf("ADIN1100-PhyId: %d %04X.%04X\r\n", this->_phyId, phyId1, phyId2);
+        Serial.printf("ADIN1100: %08X\r\n", this->get_phy_id());
         Serial.printf("ADIN1100-PMA LinkStat: %04X\r\n", pmaLinkStat);
         Serial.printf("ADIN1100-PMA Stat: %04X\r\n", pmaStat);
         Serial.print("---------------------------------------------------------------\r\n");
