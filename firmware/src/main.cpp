@@ -17,6 +17,8 @@ FibreCode FC440 3-Port Switch LAN9303Mi
 #include <Wire.h>
 
 #include "elapsedMillis.h"
+
+#include "service.h"
 #include "fc1020.h"
 #include "dp83td510e.h"
 #include "adin1100.h"
@@ -194,7 +196,6 @@ void loop()
 
   if (ledPollTimer > 10)
   {
-
     LED1.process();
     LED2.process();
 
