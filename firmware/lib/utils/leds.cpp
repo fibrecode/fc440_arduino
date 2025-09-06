@@ -36,7 +36,7 @@ void BoardLed::setLed2(BOARD_LED_COLOR color1, BOARD_LED_COLOR color2, BOARD_LED
 }
 
 void BoardLed::process()
-{            
+{
     unsigned long blinkDelay = LED_SLOW_BLINK_DELAY;
 
     switch(this->_ledMode)

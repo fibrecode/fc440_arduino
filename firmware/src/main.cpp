@@ -55,6 +55,8 @@ TJA1101_Control tja1101;
 Lan9303InternalPhy internalPhy;
 elapsedMillis debugTimer;
 elapsedMillis phyPollTimer;
+elapsedMillis ledPollTimer;
+
 BoardLed LED1;
 BoardLed LED2;
 Lan9303 lanSwitch(SWITCH_ADDRESS, true);
@@ -128,8 +130,7 @@ void loop()
   uint8_t j, dip;
   uint8_t phyAddr;
 
-
-  if(phyPollTimer > 500)
+  if (phyPollTimer > 500)
   {
     for (j=0;j<4;j++)
     {
@@ -191,8 +192,14 @@ void loop()
     phyPollTimer = 0;
   }
 
-  LED1.process();
-  LED2.process();
+  if (ledPollTimer > 10)
+  {
+
+    LED1.process();
+    LED2.process();
+
+    ledPollTimer = 0;
+  }
 
 }
 
