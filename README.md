@@ -5,7 +5,7 @@ Small and compact switch module using:
 * NXP TJA1101BHN for 100BASE-T1 (SPE-Port IEEE802.3bw)
 * Analog ADIN1100 for 10BASE-T1L (SPE-Port IEEE802.3cg)
 
-# FC440 Arduino
+## FC440 Arduino
 Firmware-project based on Arduino using VSCode and PlatformIO for RP2040 controller.
 Initial firmware includes full running environment to use all ports.
 * LAN9303Mi configured via I2C
@@ -17,3 +17,8 @@ Initial firmware includes full running environment to use all ports.
 *   DIP.1: Configure TJA1101 as Master/Slave (DIP.0 = Off)
 *   DIP.2: Configure ADIN1100 Autoneg
 *   DIP.3: Configure ADIN1100 Manual (Force Master/Slave) 
+
+## References
+[Link to FibreCode GmbH](www.fibrecode.com)
+
+FibreCode has multiple products supporting SPE/USB/...
